@@ -15,17 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PraktikumPAPB"
         tools:targetApi="31">
-
-        <activity
-            android:name=".ListActivity"
-            android:exported="true"
-            android:theme="@style/Theme.PraktikumPAPB"/>
-
-        <activity
-            android:name=".GithubProfileActivity"
-            android:exported="true"
-            android:theme="@style/Theme.PraktikumPAPB"/>
-
         <activity
             android:name=".MainActivity"
             android:exported="true"

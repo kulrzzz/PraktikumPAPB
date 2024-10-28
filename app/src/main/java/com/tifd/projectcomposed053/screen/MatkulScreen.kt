@@ -1,22 +1,41 @@
 package com.tifd.projectcomposed053.screen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.firestore.FirebaseFirestore
 
-// Tambahkan data class JadwalKuliah di sini
+// Data class JadwalKuliah
 data class JadwalKuliah(
     val mataKuliah: String = "",
     val jamMulai: String = "",
@@ -55,30 +74,38 @@ fun MatkulScreen(navController: NavHostController = rememberNavController()) {
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Jadwal Kuliah", style = MaterialTheme.typography.headlineMedium) }
-            )
-        }
+        containerColor = Color(0xFF212121) // Menyatukan tampilan dengan background
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
-            verticalArrangement = Arrangement.Center
+                .padding(padding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                text = "Jadwal Kuliah",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            )
+
             if (isLoading) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize(),
-                    contentAlignment = Alignment.Center // Posisi indikator di tengah
+                    contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = Color(0xFFBB86FC))
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     items(jadwalList) { jadwal ->
                         ScheduleItem(jadwal)
@@ -94,23 +121,40 @@ fun ScheduleItem(jadwal: JadwalKuliah) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 4.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE3F2FD) // Warna background kartu yang lebih estetik
+            containerColor = Color(0xFF333333),
+            contentColor = Color.White
         )
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(text = jadwal.mataKuliah, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "${jadwal.jamMulai} - ${jadwal.jamSelesai}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Ruang: ${jadwal.ruang}", style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = jadwal.hari.uppercase(), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF6200EA))
+            Text(
+                text = jadwal.mataKuliah,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFE0E0E0)
+            )
+            Text(
+                text = "${jadwal.jamMulai} - ${jadwal.jamSelesai}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFFBDBDBD)
+            )
+            Text(
+                text = "Ruang: ${jadwal.ruang}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFFBDBDBD)
+            )
+            Text(
+                text = jadwal.hari.uppercase(),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFFBB86FC)
+            )
         }
     }
 }

@@ -1,11 +1,16 @@
 package com.tifd.projectcomposed053
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -13,8 +18,23 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,9 +47,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.FirebaseApp
-import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
+import com.tifd.projectcomposed053.data.model.local.TugasRepository
 import com.tifd.projectcomposed053.navigation.NavigationItem
 import com.tifd.projectcomposed053.navigation.Screen
 import com.tifd.projectcomposed053.screen.MatkulScreen
@@ -50,13 +70,16 @@ class MainActivity : ComponentActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        // Inisialisasi TugasRepository dengan context aplikasi
+        val tugasRepository = TugasRepository(application)
+
         setContent {
             PraktikumPAPBTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainActivityContent() // Memanggil MainActivityContent yang berisi logika navigasi dan login
+                    MainActivityContent(tugasRepository = tugasRepository) // Teruskan tugasRepository ke MainActivityContent
                 }
             }
         }
@@ -79,7 +102,7 @@ class MainActivity : ComponentActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
-                    onLoginSuccess() // Memanggil fungsi untuk berpindah ke screen utama setelah login
+                    onLoginSuccess() // Panggil fungsi ini untuk beralih ke screen utama setelah login
                 } else {
                     val errorMessage = task.exception?.message ?: "Authentication failed"
                     Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
@@ -90,7 +113,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainActivityContent() {
+fun MainActivityContent(tugasRepository: TugasRepository) {
     val navController = rememberNavController() // Create NavController for navigating screens
     var isLoggedIn by remember { mutableStateOf(false) } // Menyimpan status login
 
@@ -109,10 +132,10 @@ fun MainActivityContent() {
                     MatkulScreen()
                 }
                 composable(Screen.Tugas.route) {
-                    TugasScreen()
+                    TugasScreen(tugasRepository = tugasRepository) // Teruskan tugasRepository ke TugasScreen
                 }
                 composable(Screen.Profil.route) {
-                    ProfileScreen(username = "kulrzzz")  // Use your GitHub username
+                    ProfileScreen(username = "kulrzzz") // Ganti dengan username GitHub Anda
                 }
             }
         }

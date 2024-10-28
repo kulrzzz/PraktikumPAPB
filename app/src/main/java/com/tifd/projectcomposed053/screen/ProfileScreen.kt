@@ -1,10 +1,21 @@
 package com.tifd.projectcomposed053.screen
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -12,41 +23,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.tifd.projectcomposed053.api.GithubUser
-import com.tifd.projectcomposed053.api.RetrofitClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import android.util.Log
+import com.tifd.projectcomposed053.viewmodel.ProfileViewModel
 
 @Composable
-fun ProfileScreen(username: String) {
-    var userProfile by remember { mutableStateOf<GithubUser?>(null) }
-    var isLoading by remember { mutableStateOf(true) }
+fun ProfileScreen(username: String, profileViewModel: ProfileViewModel = viewModel()) {
+    val userProfile by profileViewModel.userProfile.collectAsState()
+    val isLoading by profileViewModel.isLoading.collectAsState()
 
-    // Token GitHub digunakan untuk autentikasi
-    val token = "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"  // Ganti dengan token GitHub Anda
-    val authHeader = "token $token"
-    Log.d("ProfileScreen", "Token: $token")  // Tambahkan log token
-
+    // Memuat data profil pengguna saat pertama kali ditampilkan
     LaunchedEffect(username) {
-        RetrofitClient.githubApiService.getUserProfile(username, authHeader).enqueue(object : Callback<GithubUser> {
-            override fun onResponse(call: Call<GithubUser>, response: Response<GithubUser>) {
-                if (response.isSuccessful) {
-                    userProfile = response.body()
-                    isLoading = false
-                } else {
-                    Log.e("ProfileScreen", "Failed to fetch data: ${response.message()}")
-                    isLoading = false
-                }
-            }
-
-            override fun onFailure(call: Call<GithubUser>, t: Throwable) {
-                Log.e("ProfileScreen", "Error fetching profile", t)
-                isLoading = false
-            }
-        })
+        profileViewModel.fetchUserProfile(username)
     }
 
     if (isLoading) {
@@ -60,26 +48,28 @@ fun ProfileScreen(username: String) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Gambar profil berbentuk lingkaran
+                // Menampilkan gambar profil berbentuk lingkaran
                 Image(
                     painter = rememberAsyncImagePainter(user.avatarUrl),
                     contentDescription = "Profile Picture",
                     modifier = Modifier
                         .size(150.dp)
-                        .clip(CircleShape) // Membuat gambar bulat
+                        .clip(CircleShape)
                         .padding(4.dp),
                     contentScale = ContentScale.Crop
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Tampilkan detail profil pengguna
+                // Menampilkan informasi pengguna
                 Text(text = "Username: ${user.username}", fontSize = 22.sp, fontWeight = FontWeight.Bold)
                 Text(text = "Name: ${user.name ?: "N/A"}", fontSize = 18.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(text = "Followers: ${user.followers}", fontSize = 18.sp)
                 Text(text = "Following: ${user.following}", fontSize = 18.sp)
             }
+        } ?: run {
+            Text("Profile not found", color = MaterialTheme.colorScheme.error, fontSize = 18.sp)
         }
     }
 }
